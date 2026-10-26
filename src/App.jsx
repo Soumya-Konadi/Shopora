@@ -102,6 +102,26 @@ const presentation = {
   },
 }
 
+// Temporary demo products used when the Java API is unavailable.
+// Image paths match the existing files in public/products.
+function createDemoProducts() {
+  const demoPrices = [499, 399, 299, 799, 449, 599, 999, 249, 899, 699, 349, 549]
+
+  return Object.entries(presentation).map(([databaseName, display], index) => ({
+    id: 9001 + index,
+    databaseName,
+    name: display.name || databaseName,
+    description: `Demo product: ${display.name || databaseName}`,
+    category: display.category || 'Other',
+    price: demoPrices[index] || 499,
+    oldPrice: display.oldPrice || null,
+    rating: display.rating || 4.5,
+    image: display.image || '',
+    emoji: display.emoji || '🛍️',
+    stockQuantity: 10,
+  }))
+}
+
 function formatPrice(price) {
   return `₹${Number(price || 0).toLocaleString('en-IN')}`
 }
@@ -227,12 +247,11 @@ function App() {
           setProducts(normalized)
         }
       } catch (error) {
-        console.error('Products loading error:', error)
+        console.warn('Products API unavailable; using temporary demo products.', error)
 
         if (!cancelled) {
-          setProductsError(
-            error.message || 'Unable to load products. Check that Tomcat is running.'
-          )
+          setProducts(createDemoProducts())
+          setProductsError('')
         }
       } finally {
         if (!cancelled) setProductsLoading(false)
